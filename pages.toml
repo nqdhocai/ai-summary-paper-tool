@@ -1,0 +1,16 @@
+[[pages]]
+path = "sumPaperPage.py"
+name = "Summarize Paper"
+icon = "📃"
+
+[[pages]]
+path = "hisSumPage.py"
+name = "Summarize History"
+icon = "📝"
+url_path = "his_sum" # You can override the default url path for a page
+
+[[pages]]
+path = "chatWithPapers.py"
+name = "Chat with AI !"
+icon = "🤖"
+url_path = "chat"
