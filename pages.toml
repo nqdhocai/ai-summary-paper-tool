@@ -1,16 +1,16 @@
 [[pages]]
-path = "sumPaperPage.py"
-name = "Summarize Paper"
+path = "summarize_paper.py"  # Đổi tên file để mô tả rõ hơn
+name = "Tóm Tắt Tài Liệu"
 icon = "📃"
 
 [[pages]]
-path = "hisSumPage.py"
-name = "Summarize History"
+path = "summarize_history.py"  # Đổi tên file để mô tả rõ hơn
+name = "Bài Báo Đã Tóm Tắt"
 icon = "📝"
-url_path = "his_sum" # You can override the default url path for a page
+url_path = "tomtat"  # Bạn có thể ghi đè đường dẫn url mặc định cho trang này
 
 [[pages]]
-path = "chatWithPapers.py"
-name = "Chat with AI !"
+path = "chat_with_ai.py"  # Đổi tên file để mô tả rõ hơn
+name = "AI Chat"
 icon = "🤖"
-url_path = "chat"
+url_path = "tro_chuyen"
