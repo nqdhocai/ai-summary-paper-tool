@@ -16,7 +16,7 @@ def get_embeddings(sens):
     return np.array(embeddings['embedding'])
 
 class ChunkingRag:
-    def __init__(self, api_key="AIzaSyCCrkejlNharUNOYrMILPAucgg2Fi558UI"):
+    def __init__(self, api_key="GOOGLE_API_KEY"):
         genai.configure(api_key=api_key)
 
     def preprocess_text(self, text):
