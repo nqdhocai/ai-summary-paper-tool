@@ -1,7 +1,8 @@
 import os
 import google.generativeai as genai
+from rag import VectorDB
 
-genai.configure(api_key=os.environ["GG_API_KEY"])
+genai.configure(api_key="AIzaSyCCrkejlNharUNOYrMILPAucgg2Fi558UI")
 
 # Create the model
 generation_config = {
@@ -66,9 +67,10 @@ class ChatSession:
           "Luôn đưa câu trả lời trong tiếng việt, nếu được yêu cầu viết code thì đưa ra đoạn code trong python theo yêu cầu"
         ]
       }
-    ], model=model):
+    ], model=model, vectorDB=VectorDB()):
         self.history = history
         self.model = model
+        self.vectorDB=vectorDB
 
     def _updateHis(self, chat_turn):
         # chat_turn kiểu: {"role": "user" | "model", "parts": [...]}
@@ -78,7 +80,17 @@ class ChatSession:
             system_role.extend(self.history[-10:])  # Giữ lại 10 lượt cuối
             self.history = system_role
 
-    def get_response(self, input):
+    def get_response(self, input, rag_mode=False):
+        if rag_mode:
+            context = self.vectorDB.get_docs(input)[0]
+            context = "\n".join(context)
+
+            input = f"""
+            CONTEXT: {context}
+            
+            QUESTION: {input}
+            """
+
         # Bắt đầu một phiên trò chuyện mới
         chat_session = model.start_chat(
             history=self.history

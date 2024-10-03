@@ -1,16 +1,16 @@
 [[pages]]
-path = "summarize_paper_page.py"  # Đổi tên file để mô tả rõ hơn
+path = "pages\\summarize_paper_page.py"  # Đổi tên file để mô tả rõ hơn
 name = "Tóm Tắt Tài Liệu"
 icon = "📃"
 
 [[pages]]
-path = "summarize_history_page.py"  # Đổi tên file để mô tả rõ hơn
+path = "pages\\summarize_history_page.py"  # Đổi tên file để mô tả rõ hơn
 name = "Bài Báo Đã Tóm Tắt"
 icon = "📝"
 url_path = "tomtat"  # Bạn có thể ghi đè đường dẫn url mặc định cho trang này
 
 [[pages]]
-path = "chat_with_ai.py"  # Đổi tên file để mô tả rõ hơn
+path = "pages\\chat_with_ai.py"  # Đổi tên file để mô tả rõ hơn
 name = "AI Chat"
 icon = "🤖"
 url_path = "tro_chuyen"

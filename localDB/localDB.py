@@ -1,57 +1,85 @@
 import os
+import sqlite3
 from uuid import uuid4
-import pandas as pd
+
 
 class LocalDB:
-    def __init__(self, localDBPath="localDB/localDB.csv", paperSumDir="localDB/paperSum"):
-        self.localDBPath = localDBPath
-        self.paperSumDir = paperSumDir
-        self.localDB = None
-        self.titleList = None
-        self._initLocalDB()
+    def __init__(self, data_dir="localDB", db_name: str = "localDB\local.db",
+                 title_table_name: str = "paper_summarized",
+                 store_path: str = "localDB\paper_summarized"):
+        self.data_dir = data_dir
+        self.store_path = store_path
+        self._init_data_dir()
 
-    def _initLocalDB(self):
-        if not os.path.exists(self.localDBPath):
-            db = pd.DataFrame(columns=['id', 'title', 'path'])
-            db.to_csv(self.localDBPath, index=False)
-        if not os.path.exists(self.paperSumDir):
-            os.mkdir(self.paperSumDir)
-        db = pd.read_csv(self.localDBPath)
-        self.localDB = db
-        self.titleList = db.title.to_list()
+        self.conn = sqlite3.connect(db_name)
+        self.cursor = self.conn.cursor()
+        self.title_table_name = title_table_name
 
-    def addToDB(self, title):
-        if title not in self.titleList:
-            newPaperIndex = len(self.localDB)
-            newPaperId = str(uuid4())
-            newPaperNameFile = newPaperId + ".txt"
-            newPaperPath = os.path.join(self.paperSumDir, newPaperNameFile)
-            new_paper = {
-                "id": newPaperId,
-                "title": title,
-                "path": newPaperPath
-            }
-            self.localDB.loc[newPaperIndex] = new_paper
-            self._getAllTitles()
-            self.localDB.to_csv(self.localDBPath, index=False)
-            return newPaperPath
+        self._init_table()
 
-    def _getAllTitles(self):
-        self.titleList = self.localDB.title.to_list()
+    def _init_data_dir(self):
+        if not os.path.exists(self.data_dir):
+            os.mkdir(self.data_dir)
+        if not os.path.exists(self.store_path):
+            os.mkdir(self.store_path)
 
-    def getAll(self):
-        if self.localDB.empty:
-            return []
-        return list(self.localDB[['title', 'path']].itertuples(index=False, name=None))
+    def _init_table(self):
+        self.cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {self.title_table_name} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                path TEXT NOT NULL
+            )
+        ''')
 
-    def searchTitle(self, query):
-        if not self.localDB.empty:
-            # Tìm kiếm từ khóa trong danh sách tiêu đề
-            results = self.localDB[self.localDB['title'].str.contains(query, case=False, na=False)]
+        self.conn.commit()
 
-            # Chuyển kết quả thành danh sách các tuple
-            results_list = list(results[['title', 'path', 'id']].itertuples(index=False, name=None))
+    def _is_paper_exist(self, title: str) -> bool:
+        title = title.upper()
+        self.cursor.execute("SELECT * FROM paper_summarized WHERE title = ?", (title,))
+        result = self.cursor.fetchone()
+        if result is None:
+            return False
+        return True
 
-            return results_list
-        return []
-db = LocalDB()
+    def insert_paper(self, title: str):
+        title = title.upper()
+        if not self._is_paper_exist(title):
+            paper_file_path = str(uuid4()) + ".txt"
+            paper_file_path = os.path.join(self.store_path, paper_file_path)
+
+            self.cursor.execute(f"""
+            INSERT INTO {self.title_table_name} (title, path) 
+            VALUES (?, ?)
+            """, (title, paper_file_path,))
+            self.conn.commit()
+            print("inserted new paper")
+
+            self.conn.commit()
+            return paper_file_path
+        else:
+            print("paper is existed")
+            return None
+
+    def get_paper_path(self, title: str = ""):
+        title = title.upper()
+        if not self._is_paper_exist(title):
+            return None
+        self.cursor.execute(f"SELECT * FROM {self.title_table_name} WHERE title = ?", (title,))
+        result = self.cursor.fetchone()
+        path = result[-1]
+
+        return path
+
+    def get_all_papers(self) -> list:
+        self.cursor.execute(f"SELECT * FROM {self.title_table_name}")
+        result = self.cursor.fetchall()
+        return result # [(id, title, path)]
+
+    def search_paper(self, query=""):
+        self.cursor.execute(f"""
+            SELECT * FROM {self.title_table_name}
+            WHERE title LIKE ?
+        """, (f"%{query.upper()}%",))
+        result = self.cursor.fetchall()
+        return result # [(id, title, path)]
