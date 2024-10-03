@@ -2,7 +2,7 @@ import os
 import google.generativeai as genai
 from rag import VectorDB
 
-genai.configure(api_key="AIzaSyCCrkejlNharUNOYrMILPAucgg2Fi558UI")
+genai.configure(api_key="GOOGLE_API_KEY")
 
 # Create the model
 generation_config = {
